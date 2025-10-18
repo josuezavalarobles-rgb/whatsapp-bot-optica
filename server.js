@@ -12,6 +12,7 @@ const dbConfig = {
     user: process.env.DB_USER || 'kbjebqmy_jornada',
     password: process.env.DB_PASSWORD || 'Abetnegoxyz1965$',
     database: process.env.DB_NAME || 'kbjebqmy_optica_jornadas',
+    port: 3306,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -135,19 +136,39 @@ async function procesarColaMensajes() {
 
 /**
  * Enviar mensaje de WhatsApp
+ * FORMATO CORRECTO PARA REPÚBLICA DOMINICANA
  */
 async function enviarMensajeWhatsApp(numero, mensaje) {
     // Formatear número (eliminar caracteres especiales)
     let numeroLimpio = numero.replace(/\D/g, '');
     
-    // Agregar código de país si no lo tiene (asumiendo República Dominicana +1-809)
+    // República Dominicana usa formato: 1809XXXXXXX o 1829XXXXXXX o 1849XXXXXXX
+    // Si el número tiene 10 dígitos (809XXXXXXX), agregamos el código de país "1"
     if (numeroLimpio.length === 10) {
-        numeroLimpio = '1' + numeroLimpio;
+        // Verificar que sea un código de área válido de RD
+        const codigoArea = numeroLimpio.substring(0, 3);
+        if (codigoArea === '809' || codigoArea === '829' || codigoArea === '849') {
+            numeroLimpio = '1' + numeroLimpio; // Ahora: 1809XXXXXXX
+        } else {
+            throw new Error(`Código de área inválido: ${codigoArea}. Debe ser 809, 829 o 849.`);
+        }
+    }
+    
+    // Si ya tiene 11 dígitos y empieza con 1, está correcto
+    if (numeroLimpio.length === 11 && numeroLimpio.startsWith('1')) {
+        // Verificar código de área
+        const codigoArea = numeroLimpio.substring(1, 4);
+        if (codigoArea !== '809' && codigoArea !== '829' && codigoArea !== '849') {
+            throw new Error(`Código de área inválido: ${codigoArea}. Debe ser 809, 829 o 849.`);
+        }
+    } else if (numeroLimpio.length !== 11) {
+        throw new Error(`Número inválido: ${numero}. Debe tener 10 u 11 dígitos.`);
     }
     
     // Formato para WhatsApp: [código_país][número]@c.us
     const chatId = numeroLimpio + '@c.us';
     
+    console.log(`📱 Enviando mensaje a: ${chatId}`);
     await client.sendMessage(chatId, mensaje);
 }
 

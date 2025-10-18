@@ -41,11 +41,11 @@ let botReady = false;
 
 // Evento: Generar QR
 client.on('qr', (qr) => {
-    console.log('📱 ESCANEA ESTE QR CON TU CELULAR:');
     qrcode.generate(qr, { small: true });
-    console.log('\n\n🔗 O ABRE ESTE LINK EN TU NAVEGADOR:\n');
-    console.log('https://qr.link/create?data=' + encodeURIComponent(qr));
-    console.log('\n');
+    console.log('\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    console.log('🔗 ABRE ESTE LINK EN TU NAVEGADOR:\n');
+    console.log('https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=' + encodeURIComponent(qr));
+    console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
     console.log('\n🔹 Abre WhatsApp en tu celular Android');
     console.log('🔹 Ve a Ajustes > Dispositivos vinculados');
     console.log('🔹 Escanea el código QR de arriba\n');
